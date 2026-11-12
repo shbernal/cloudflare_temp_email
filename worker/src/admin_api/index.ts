@@ -55,6 +55,7 @@ api.post('/admin/account_settings', account_settings_api.save)
 
 // cleanup
 api.post('/admin/cleanup', cleanup_api.cleanup)
+api.post('/admin/cleanup/custom_sql', cleanup_api.runCustomSqlCleanup)
 api.get('/admin/auto_cleanup', cleanup_api.getCleanup)
 api.post('/admin/auto_cleanup', cleanup_api.saveCleanup)
 

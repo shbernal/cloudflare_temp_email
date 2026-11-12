@@ -2937,6 +2937,14 @@ export const MESSAGE_REGISTRY = {
       "en": "Cleanup the unknow mail before n days",
       "zh": "清理 n 天前的无收件人邮件"
     },
+    "runCustomSqlSuccess": {
+      "en": "Cleanup success, {count} rows deleted",
+      "zh": "清理成功，删除了 {count} 行"
+    },
+    "runCustomSqlTip": {
+      "en": "Cleanup now runs the saved statement, save changes first.",
+      "zh": "立即清理执行已保存的语句，修改后请先保存。"
+    },
     "save": {
       "en": "Save",
       "zh": "保存"

@@ -195,4 +195,36 @@ test.describe('Bounded cleanup', () => {
       await deleteAddress(request, recentAddress.jwt);
     }
   });
+
+  test('runs a saved custom SQL cleanup on demand', async ({ request }) => {
+    const address = `cleanup-custom-${Date.now()}@test.example.com`;
+    const seedResponse = await request.post(`${WORKER_URL}/__test/seed_mail`, {
+      data: { address, raw: 'custom cleanup mail', message_id: `<cleanup-custom-${Date.now()}@test>` },
+    });
+    expect(seedResponse.ok()).toBe(true);
+
+    const original = await (await request.get(`${WORKER_URL}/admin/auto_cleanup`)).json();
+    const id = `custom-${Date.now()}`;
+    try {
+      const saveResponse = await request.post(`${WORKER_URL}/admin/auto_cleanup`, {
+        data: {
+          ...(original || {}),
+          customSqlCleanupList: [
+            { id, name: 'custom', sql: `DELETE FROM raw_mails WHERE address = '${address}'`, enabled: false },
+          ],
+        },
+      });
+      expect(saveResponse.ok()).toBe(true);
+
+      const runResponse = await request.post(`${WORKER_URL}/admin/cleanup/custom_sql`, { data: { id } });
+      expect(runResponse.ok()).toBe(true);
+      expect(await runResponse.json()).toEqual({ success: true, rowsAffected: 1 });
+      expect((await listMails(request, address)).count).toBe(0);
+
+      const missingResponse = await request.post(`${WORKER_URL}/admin/cleanup/custom_sql`, { data: { id: 'missing' } });
+      expect(missingResponse.status()).toBe(404);
+    } finally {
+      await request.post(`${WORKER_URL}/admin/auto_cleanup`, { data: original || {} });
+    }
+  });
 });

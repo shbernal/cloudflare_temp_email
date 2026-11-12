@@ -16,6 +16,7 @@
 - feat: |User System| Add `DISABLE_USER_SYSTEM` to block user APIs, disable user admin tokens, and hide user interfaces
 - feat: |Mailbox Login| Add a password-only login-page switch that requires mailbox passwords; preserve existing credentials, login links, API access, and JWT lifetimes
 - feat: |Mailbox Credential| Show a QR code of the auto-login link in the credential dialog for opening the mailbox on mobile, with a reminder that anyone with the QR code can access the mailbox (issue #1189)
+- feat: |Scheduled Cleanup| Add a "Cleanup now" button to each custom SQL cleanup that runs the saved statement through `POST /admin/cleanup/custom_sql` and reports the deleted row count
 
 ### Bug Fixes
 

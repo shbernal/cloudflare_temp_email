@@ -28,6 +28,14 @@ const cleanupModel = ref({
 
 const { t } = useScopedI18n('views.admin.Maintenance')
 
+// SQL of each custom cleanup as last saved, keyed by id; "run now" executes the saved version
+const savedCustomSql = ref({})
+const syncSavedCustomSql = () => {
+    savedCustomSql.value = Object.fromEntries(
+        (cleanupModel.value.customSqlCleanupList || []).map((item) => [item.id, item.sql])
+    )
+}
+
 const cleanup = async (cleanType, cleanDays) => {
     try {
         await api.fetch('/admin/cleanup', {
@@ -35,6 +43,18 @@ const cleanup = async (cleanType, cleanDays) => {
             body: JSON.stringify({ cleanType, cleanDays })
         });
         message.success(t('cleanupSuccess'));
+    } catch (error) {
+        message.error(error.message || "error");
+    }
+}
+
+const runCustomSql = async (item) => {
+    try {
+        const res = await api.fetch('/admin/cleanup/custom_sql', {
+            method: 'POST',
+            body: JSON.stringify({ id: item.id })
+        });
+        message.success(t('runCustomSqlSuccess', { count: res.rowsAffected ?? 0 }));
     } catch (error) {
         message.error(error.message || "error");
     }
@@ -63,6 +83,7 @@ const fetchData = async () => {
         if (!cleanupModel.value.customSqlCleanupList) {
             cleanupModel.value.customSqlCleanupList = [];
         }
+        syncSavedCustomSql();
     } catch (error) {
         message.error(error.message || "error");
     }
@@ -74,6 +95,7 @@ const save = async () => {
             method: 'POST',
             body: JSON.stringify(cleanupModel.value)
         });
+        syncSavedCustomSql();
         message.success(t('saveSuccess'));
     } catch (error) {
         message.error(error.message || "error");
@@ -188,7 +210,7 @@ onMounted(async () => {
                 </n-tab-pane>
                 <n-tab-pane name="custom_sql" :tab="t('customSqlCleanup')">
                     <n-alert :show-icon="false" :bordered="false" type="info" style="margin-bottom: 16px;">
-                        <span>{{ t('customSqlTip') }}</span>
+                        <span>{{ t('customSqlTip') }} {{ t('runCustomSqlTip') }}</span>
                     </n-alert>
                     <n-space vertical>
                         <n-card v-for="(item, index) in cleanupModel.customSqlCleanupList" :key="item.id" size="small">
@@ -198,6 +220,13 @@ onMounted(async () => {
                                         {{ t('autoCleanup') }}
                                     </n-checkbox>
                                     <n-input v-model:value="item.name" :placeholder="t('sqlNamePlaceholder')" style="width: 200px;" />
+                                    <n-button @click="runCustomSql(item)"
+                                        :disabled="!item.sql || savedCustomSql[item.id] !== item.sql">
+                                        <template #icon>
+                                            <n-icon :component="CleaningServicesFilled" />
+                                        </template>
+                                        {{ t('cleanupNow') }}
+                                    </n-button>
                                     <n-button @click="removeCustomSql(index)" type="error" quaternary>
                                         <template #icon>
                                             <n-icon :component="DeleteFilled" />

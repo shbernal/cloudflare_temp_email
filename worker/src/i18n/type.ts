@@ -94,6 +94,7 @@ export type LocaleMessages = {
     InvalidCleanupConfigMsg: string
     InvalidCleanTypeMsg: string
     CleanupFailedMsg: string
+    CustomSqlCleanupNotFoundMsg: string
     EnableKVForMailVerifyMsg: string
     VerifyMailDomainInvalidMsg: string
     InvalidMaxAddressCountMsg: string

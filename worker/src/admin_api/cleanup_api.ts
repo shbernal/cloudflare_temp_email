@@ -108,6 +108,20 @@ export default {
         }
         return c.json({ success: true })
     },
+    runCustomSqlCleanup: async (c: Context<HonoCustomType>) => {
+        const msgs = i18n.getMessagesbyContext(c);
+        const { id } = await c.req.json<{ id: string }>();
+        const cleanupSetting = await getJsonSetting<CleanupSettings>(c, CONSTANTS.AUTO_CLEANUP_KEY);
+        const customSql = cleanupSetting?.customSqlCleanupList?.find((item) => item.id === id);
+        if (!id || !customSql) {
+            return c.text(msgs.CustomSqlCleanupNotFoundMsg, 404);
+        }
+        const result = await executeCustomSqlCleanup(c, customSql);
+        if (!result.success) {
+            return c.text(`[${customSql.name || 'unnamed'}]: ${result.error}`, 400);
+        }
+        return c.json({ success: true, rowsAffected: result.rowsAffected });
+    },
     getCleanup: async (c: Context<HonoCustomType>) => {
         const cleanupSetting = await getJsonSetting<CleanupSettings>(c, CONSTANTS.AUTO_CLEANUP_KEY);
         return c.json(cleanupSetting)

@@ -96,6 +96,7 @@ const messages: LocaleMessages = {
     InvalidCleanupConfigMsg: "Invalid cleanType or cleanDays",
     InvalidCleanTypeMsg: "Invalid cleanType",
     CleanupFailedMsg: "Cleanup failed. Check your cleanup settings; inactive-address cleanup is unavailable when address activity updates are disabled.",
+    CustomSqlCleanupNotFoundMsg: "Custom SQL cleanup not found, save it first",
     EnableKVForMailVerifyMsg: "Please enable KV first if you want to enable mail verify",
     VerifyMailDomainInvalidMsg: "VerifyMailSender domain must be in",
     InvalidMaxAddressCountMsg: "Invalid maxAddressCount",
